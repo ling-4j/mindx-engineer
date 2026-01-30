@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: week1-ingress
+  namespace: week1-prod
+  labels:
+    environment: production
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 8080
+      - path: /api/
+        pathType: Prefix
+        backend:
+          service:
+            name: api-service
+            port:
+              number: 3000
