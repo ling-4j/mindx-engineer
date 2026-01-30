@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: week1-ingress
-  namespace: week1-prod
+  namespace: week1
   labels:
     environment: production
   annotations:

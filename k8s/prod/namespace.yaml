@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: week1-prod
+  name: week1
   labels:
     environment: production
     version: v1

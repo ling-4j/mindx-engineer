@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-deployment
-  namespace: week1-prod
+  namespace: week1
   labels:
     app: api
     version: v1
@@ -49,6 +49,36 @@ spec:
           value: "production"
         - name: PORT
           value: "3000"
+        - name: OIDC_ISSUER
+          valueFrom:
+            secretKeyRef:
+              name: auth-secrets
+              key: OIDC_ISSUER
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: auth-secrets
+              key: OIDC_CLIENT_ID
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth-secrets
+              key: OIDC_CLIENT_SECRET
+        - name: OIDC_REDIRECT_URI
+          valueFrom:
+            secretKeyRef:
+              name: auth-secrets
+              key: OIDC_REDIRECT_URI
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth-secrets
+              key: SESSION_SECRET
+        - name: FRONTEND_URL
+          valueFrom:
+            secretKeyRef:
+              name: auth-secrets
+              key: FRONTEND_URL
         resources:
           requests:
             memory: "256Mi"
@@ -87,7 +117,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: api-hpa
-  namespace: week1-prod
+  namespace: week1
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

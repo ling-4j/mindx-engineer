@@ -1,5 +1,8 @@
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import { authRouter, isAuthenticated } from './auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -7,6 +10,17 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: NODE_ENV === 'production', // Set true if https
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
+  }
+}));
 
 // Request logging
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -14,6 +28,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`[${timestamp}] ${req.method} ${req.path}`);
   next();
 });
+
+// Authentication Routes
+app.use('/auth', authRouter);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -30,6 +47,8 @@ app.get('/hello', (req: Request, res: Response) => {
   res.json({
     message: 'Hello from API',
     timestamp: new Date().toISOString(),
+    sessionID: req.sessionID,
+    user: req.session.user || null
   });
 });
 
@@ -38,6 +57,7 @@ app.get('/api/hello', (req: Request, res: Response) => {
   res.json({
     message: 'Hello from API',
     timestamp: new Date().toISOString(),
+    user: req.session.user ? `Hello, ${req.session.user.given_name}` : 'Hello, Guest'
   });
 });
 
@@ -46,8 +66,17 @@ app.get('/api/info', (req: Request, res: Response) => {
   res.json({
     name: 'MindX Engineer Week 1 API',
     version: '1.0.0',
-    endpoints: ['/health', '/hello', '/api/info'],
+    endpoints: ['/health', '/hello', '/api/info', '/auth/login', '/auth/me', '/api/secure-data'],
     documentation: 'See README.md for details',
+  });
+});
+
+// Protected API endpoint
+app.get('/api/secure-data', isAuthenticated, (req: Request, res: Response) => {
+  res.json({
+    message: 'This is sensitive data only for logged-in users!',
+    user: req.session.user,
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -79,4 +108,5 @@ app.listen(PORT, () => {
   console.log(`[${timestamp}] Environment: ${NODE_ENV}`);
   console.log(`[${timestamp}] Listening on port ${PORT}`);
   console.log(`[${timestamp}] Health check: http://localhost:${PORT}/health`);
+  console.log(`[${timestamp}] Auth Login: http://localhost:${PORT}/auth/login`);
 });
