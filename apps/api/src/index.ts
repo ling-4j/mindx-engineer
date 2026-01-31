@@ -15,7 +15,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { 
+  cookie: {
     secure: NODE_ENV === 'production', // Set true if https
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 1 day
@@ -44,11 +44,11 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // Hello endpoint
-app.get('/hello', (req: Request, res: Response) => {
+app.get('/api/hello', (req: Request, res: Response) => {
   res.json({
     message: 'Hello from API',
     timestamp: new Date().toISOString(),
-    user: req.session?.user ? { email: req.session.user.email} : null
+    user: req.session?.user ? { email: req.session.user.email } : null
   });
 });
 
@@ -57,7 +57,7 @@ app.get('/api/info', (req: Request, res: Response) => {
   res.json({
     name: 'MindX Engineer Week 1 API',
     version: '1.0.0',
-    endpoints: ['/health', '/hello', '/api/info', '/auth/login', '/auth/me', '/api/secure-data'],
+    endpoints: ['/health', '/api/hello', '/api/info', '/auth/login', '/auth/me', '/api/secure-data'],
     documentation: 'See README.md for details',
   });
 });
@@ -87,7 +87,7 @@ app.use((req: Request, res: Response) => {
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   const timestamp = new Date().toISOString();
   console.error(`[${timestamp}] ERROR:`, err.message);
-  
+
   res.status(500).json({
     error: 'Internal Server Error',
     message: NODE_ENV === 'development' ? err.message : 'Something went wrong',
