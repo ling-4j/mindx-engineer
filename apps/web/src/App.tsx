@@ -17,7 +17,7 @@ function App() {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch('/auth/me');
+      const res = await fetch('/api/auth/me');
       const data = await res.json();
       if (data.authenticated) {
         setUser(data.user);
@@ -71,10 +71,10 @@ function App() {
            {user ? (
              <div className="logged-in">
                <span>👋 Hi, <strong>{user.given_name || user.email}</strong></span>
-               <a href="/auth/logout" className="btn-logout">Logout</a>
+               <a href="/api/auth/logout" className="btn-logout">Logout</a>
              </div>
            ) : (
-             <a href="/auth/login" className="btn-login">Login with MindX ID</a>
+             <a href="/api/auth/login" className="btn-login">Login with MindX ID</a>
            )}
         </div>
       </header>

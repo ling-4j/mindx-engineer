@@ -9,8 +9,13 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - 20.184.61.48.nip.io
+    secretName: week1-tls-secret
   rules:
-  - http:
+  - host: 20.184.61.48.nip.io
+    http:
       paths:
       - path: /
         pathType: Prefix

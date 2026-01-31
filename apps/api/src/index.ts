@@ -30,7 +30,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Authentication Routes
-app.use('/auth', authRouter);
+// Support both paths for backward compatibility in dev and Ingress routing in prod
+app.use(['/auth', '/api/auth'], authRouter);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -47,17 +48,7 @@ app.get('/hello', (req: Request, res: Response) => {
   res.json({
     message: 'Hello from API',
     timestamp: new Date().toISOString(),
-    sessionID: req.sessionID,
-    user: req.session.user || null
-  });
-});
-
-// API Hello endpoint
-app.get('/api/hello', (req: Request, res: Response) => {
-  res.json({
-    message: 'Hello from API',
-    timestamp: new Date().toISOString(),
-    user: req.session.user ? `Hello, ${req.session.user.given_name}` : 'Hello, Guest'
+    user: req.session?.user ? { email: req.session.user.email} : null
   });
 });
 
@@ -75,7 +66,10 @@ app.get('/api/info', (req: Request, res: Response) => {
 app.get('/api/secure-data', isAuthenticated, (req: Request, res: Response) => {
   res.json({
     message: 'This is sensitive data only for logged-in users!',
-    user: req.session.user,
+    user: req.session?.user ? {
+      id: req.session.user.id || req.session.user.sub,
+      email: req.session.user.email,
+    } : null,
     timestamp: new Date().toISOString()
   });
 });

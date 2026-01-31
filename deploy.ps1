@@ -87,6 +87,8 @@ kubectl create secret docker-registry acr-secret `
   -n $Namespace `
   --dry-run=client -o yaml | kubectl apply -f -
 
+kubectl apply -f k8s/prod/auth-secrets.yaml
+kubectl apply -f k8s/prod/cluster-issuer.yaml
 kubectl apply -f k8s/prod/api-deployment.yaml
 kubectl apply -f k8s/prod/api-service.yaml
 kubectl apply -f k8s/prod/web-deployment.yaml

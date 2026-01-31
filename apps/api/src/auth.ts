@@ -111,7 +111,10 @@ router.get('/me', (req, res) => {
   if (req.session.user) {
     res.json({
       authenticated: true,
-      user: req.session.user
+      user: {
+        id: req.session.user.id || req.session.user.sub,
+        email: req.session.user.email
+      }
     });
   } else {
     res.json({
