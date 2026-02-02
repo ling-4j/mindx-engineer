@@ -101,5 +101,7 @@ Beyond the basic requirements, the following proactive hardening was implemented
 | Issue | Root Cause | Resolution |
 | :--- | :--- | :--- |
 | **OIDC Login Crash** | Missing `sub` claim | Added try/catch to map metadata from `firebaseId`. |
+| **Prod Session Lost** | Load balancing across 3 pods | Added **Nginx Session Affinity** (Sticky Sessions) to Ingress. |
+| **Cookie Not Set** | Proxy trust issue for HTTPS cookies | Added `app.set('trust proxy', 1)` to Express configuration. |
 
 ---

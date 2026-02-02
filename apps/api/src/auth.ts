@@ -3,8 +3,11 @@ import { Issuer, Strategy, TokenSet, UserinfoResponse } from 'openid-client';
 import express from 'express';
 import session from 'express-session';
 
-console.log('--- Loading auth.ts ---');
-const router = express.Router();
+// OIDC Configuration
+const oidcIssuer = (process.env.OIDC_ISSUER || 'https://id-dev.mindx.edu.vn').trim();
+const clientId = (process.env.OIDC_CLIENT_ID || '').trim();
+const clientSecret = (process.env.OIDC_CLIENT_SECRET || '').trim();
+const redirectUri = (process.env.OIDC_REDIRECT_URI || 'http://localhost:3000/auth/callback').trim();
 
 // Extend the session type to include user info
 declare module 'express-session' {
@@ -14,11 +17,7 @@ declare module 'express-session' {
   }
 }
 
-// OIDC Configuration
-const oidcIssuer = process.env.OIDC_ISSUER || 'https://id-dev.mindx.edu.vn';
-const clientId = process.env.OIDC_CLIENT_ID || '';
-const clientSecret = process.env.OIDC_CLIENT_SECRET || '';
-const redirectUri = process.env.OIDC_REDIRECT_URI || 'http://localhost:3000/auth/callback';
+const router = express.Router();
 
 let client: any;
 
@@ -50,9 +49,15 @@ router.get('/login', (req, res) => {
 
   const authUrl = client.authorizationUrl({
     scope: 'openid profile email',
-    prompt: 'login', 
+    prompt: 'login',
+    redirect_uri: redirectUri,
   });
-  
+
+  console.log('Redirecting to OIDC Provider:', {
+    authUrl,
+    sentRedirectUri: redirectUri
+  });
+
   res.redirect(authUrl);
 });
 
@@ -65,7 +70,6 @@ router.get('/callback', async (req, res) => {
   try {
     const params = client.callbackParams(req);
     const tokenSet = await client.callback(redirectUri, params);
-    
     let userInfo: any;
     try {
       userInfo = await client.userinfo(tokenSet);
@@ -86,24 +90,23 @@ router.get('/callback', async (req, res) => {
 
     console.log('ser logged in:', userInfo.email || userInfo.sub);
     const frontendUrl = process.env.FRONTEND_URL || '/';
-    res.redirect(frontendUrl); 
+    res.redirect(frontendUrl);
   } catch (error) {
-    console.error('Authentication failed:', error);
     res.status(500).send(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 });
 
 // Logout route
 router.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if(err) {
-             console.error('Logout failed:', err);
-             return res.status(500).send('Logout failed');
-        }
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout failed:', err);
+      return res.status(500).send('Logout failed');
+    }
 
-        //clear local session and go home
-        res.redirect(process.env.FRONTEND_URL || '/');
-    });
+    //clear local session and go home
+    res.redirect(process.env.FRONTEND_URL || '/');
+  });
 });
 
 // Me route - Return current user info

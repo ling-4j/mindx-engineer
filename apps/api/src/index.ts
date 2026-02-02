@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Middleware
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
@@ -16,11 +17,16 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: NODE_ENV === 'production', // Set true if https
+    secure: NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 1 day
   }
 }));
+
+console.log('Session Middleware Initialized with:', {
+  nodeEnv: NODE_ENV,
+  secureCookie: NODE_ENV === 'production'
+});
 
 // Request logging
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -100,7 +106,7 @@ app.listen(PORT, () => {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] API server started`);
   console.log(`[${timestamp}] Environment: ${NODE_ENV}`);
-  console.log(`[${timestamp}] Listening on port ${PORT}`);
-  console.log(`[${timestamp}] Health check: http://localhost:${PORT}/health`);
-  console.log(`[${timestamp}] Auth Login: http://localhost:${PORT}/auth/login`);
+  console.log(`[${timestamp}] Port: ${PORT}`);
+  console.log(`[${timestamp}] Frontend URL: ${process.env.FRONTEND_URL}`);
+  console.log(`[${timestamp}] Redirect URI: ${process.env.OIDC_REDIRECT_URI}`);
 });
