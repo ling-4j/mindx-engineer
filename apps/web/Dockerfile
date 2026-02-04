@@ -12,6 +12,10 @@ RUN npm ci
 # Copy source files
 COPY . ./
 
+# Add build argument for App Insights
+ARG VITE_APPLICATIONINSIGHTS_CONNECTION_STRING
+ENV VITE_APPLICATIONINSIGHTS_CONNECTION_STRING=$VITE_APPLICATIONINSIGHTS_CONNECTION_STRING
+
 # Build React app with Vite
 RUN npm run build
 

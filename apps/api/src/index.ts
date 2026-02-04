@@ -1,3 +1,14 @@
+import { webcrypto } from 'node:crypto';
+// Polyfill global crypto for Application Insights SDK in Node 18
+if (!globalThis.crypto) {
+  Object.defineProperty(globalThis, 'crypto', {
+    value: webcrypto,
+    writable: false,
+    configurable: false
+  });
+}
+
+import * as appInsights from 'applicationinsights';
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import session from 'express-session';
@@ -5,6 +16,26 @@ import cookieParser from 'cookie-parser';
 import { authRouter, isAuthenticated } from './auth.js';
 
 const app = express();
+
+// Initialize Application Insights as early as possible
+const connectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING;
+if (connectionString) {
+  appInsights.setup(connectionString)
+    .setAutoDependencyCorrelation(true)
+    .setAutoCollectRequests(true)
+    .setAutoCollectPerformance(true, true)
+    .setAutoCollectExceptions(true)
+    .setAutoCollectDependencies(true)
+    .setAutoCollectConsole(true, true)
+    .setUseDiskRetryCaching(true)
+    .setSendLiveMetrics(true)
+    .setDistributedTracingMode(appInsights.DistributedTracingModes.AI_AND_W3C)
+    .start();
+  console.log('Application Insights initialized');
+} else {
+  console.log('Application Insights connection string not found');
+}
+
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 

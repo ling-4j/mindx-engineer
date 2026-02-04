@@ -79,6 +79,11 @@ spec:
             secretKeyRef:
               name: auth-secrets
               key: FRONTEND_URL
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: auth-secrets
+              key: APPLICATIONINSIGHTS_CONNECTION_STRING
         resources:
           requests:
             memory: "128Mi"

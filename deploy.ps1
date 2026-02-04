@@ -51,10 +51,22 @@ az acr login --name $AcrName
 
 # ---- Build images ----
 Write-Host "[4/7] Building Docker images..." -ForegroundColor Yellow
+
+# Get App Insights connection string for frontend build
+$AppInsightsCS = ""
+if (Test-Path "apps/api/.env") {
+    $line = Get-Content "apps/api/.env" | Where-Object { $_ -match "^APPLICATIONINSIGHTS_CONNECTION_STRING=" }
+    if ($line) {
+        $AppInsightsCS = $line.Split("=", 2)[1].Trim().Trim('"').Trim("'")
+    }
+}
+
 docker build -t "$AcrLoginServer/backend-api:v1" apps/api
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
-docker build -t "$AcrLoginServer/mindx/web:latest" apps/web
+docker build -t "$AcrLoginServer/mindx/web:latest" `
+    --build-arg "VITE_APPLICATIONINSIGHTS_CONNECTION_STRING=$AppInsightsCS" `
+    apps/web
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
 # ---- Push images ----
@@ -94,6 +106,11 @@ kubectl apply -f k8s/prod/api-service.yaml
 kubectl apply -f k8s/prod/web-deployment.yaml
 kubectl apply -f k8s/prod/web-service.yaml
 kubectl apply -f k8s/prod/ingress.yaml
+
+# fix on mobile pull latest image
+Write-Host "Forcing pod restart to pull latest images..." -ForegroundColor Yellow
+kubectl rollout restart deployment/api-deployment -n $Namespace
+kubectl rollout restart deployment/web-deployment -n $Namespace
 
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green

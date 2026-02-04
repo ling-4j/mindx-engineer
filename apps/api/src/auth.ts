@@ -1,4 +1,4 @@
-
+import * as appInsights from 'applicationinsights';
 import { Issuer, Strategy, TokenSet, UserinfoResponse } from 'openid-client';
 import express from 'express';
 import session from 'express-session';
@@ -58,6 +58,10 @@ router.get('/login', (req, res) => {
     sentRedirectUri: redirectUri
   });
 
+  if (appInsights.defaultClient) {
+    appInsights.defaultClient.trackEvent({ name: 'login_attempt', properties: { redirectUri } });
+  }
+
   res.redirect(authUrl);
 });
 
@@ -90,18 +94,39 @@ router.get('/callback', async (req, res) => {
 
     console.log('ser logged in:', userInfo.email || userInfo.sub);
     const frontendUrl = process.env.FRONTEND_URL || '/';
+
+    if (appInsights.defaultClient) {
+      appInsights.defaultClient.trackEvent({
+        name: 'login_success',
+        properties: { email: userInfo.email, sub: userInfo.sub }
+      });
+    }
+
     res.redirect(frontendUrl);
   } catch (error) {
+    if (appInsights.defaultClient) {
+      appInsights.defaultClient.trackException({
+        exception: error instanceof Error ? error : new Error(String(error))
+      });
+    }
     res.status(500).send(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 });
 
 // Logout route
 router.get('/logout', (req, res) => {
+  const userEmail = req.session.user?.email;
   req.session.destroy((err) => {
     if (err) {
       console.error('Logout failed:', err);
       return res.status(500).send('Logout failed');
+    }
+
+    if (appInsights.defaultClient) {
+      appInsights.defaultClient.trackEvent({
+        name: 'logout',
+        properties: { email: userEmail }
+      });
     }
 
     //clear local session and go home
