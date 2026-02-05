@@ -13,21 +13,21 @@ function App() {
   const [secureData, setSecureData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null)
-  
+
   // New state for generic endpoint testing
   const [testEndpointData, setTestEndpointData] = useState<{ path: string, data: any } | null>(null);
   const [testEndpointLoading, setTestEndpointLoading] = useState(false);
 
   const fetchTestEndpoint = async (path: string) => {
     setTestEndpointLoading(true);
-    setTestEndpointData({ path, data: null }); // Clear previous data but set path
+    setTestEndpointData({ path, data: null });
     trackEvent('test_endpoint_click', { path });
-    
+
     try {
       const startTime = performance.now();
       const res = await fetch(path);
       const duration = performance.now() - startTime;
-      
+
       let data;
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.indexOf("application/json") !== -1) {
@@ -35,7 +35,7 @@ function App() {
       } else {
         data = await res.text();
       }
-      
+
       setTestEndpointData({ path, data });
       trackEvent('test_endpoint_success', { path, status: res.status, duration });
     } catch (err) {
@@ -52,7 +52,7 @@ function App() {
       const startTime = performance.now();
       const res = await fetch('/api/auth/me');
       const duration = performance.now() - startTime;
-      
+
       const data = await res.json();
       if (data.authenticated) {
         setUser(data.user);
@@ -75,7 +75,7 @@ function App() {
       const startTime = performance.now();
       const res = await fetch('/api/hello');
       const duration = performance.now() - startTime;
-      
+
       const data = await res.json();
       setApiMessage(data.message);
       trackEvent('api_hello_success', { duration });
@@ -93,7 +93,7 @@ function App() {
       const startTime = performance.now();
       const res = await fetch('/api/secure-data');
       const duration = performance.now() - startTime;
-      
+
       if (res.ok) {
         const data = await res.json();
         setSecureData(data);
@@ -121,14 +121,14 @@ function App() {
         <h1>🚀 MindX Engineer 🚀</h1>
         <p>Full-Stack Application</p>
         <div className="auth-status">
-           {user ? (
-             <div className="logged-in">
-               <span>👋 Hi, <strong>{user.given_name || user.email} &nbsp;</strong></span>
-               <a href="/api/auth/logout" className="btn-logout" onClick={() => trackEvent('logout_click')}>Logout</a>
-             </div>
-           ) : (
-             <a href="/api/auth/login" className="btn-login" onClick={() => trackEvent('login_click')}>Login with MindX ID</a>
-           )}
+          {user ? (
+            <div className="logged-in">
+              <span>👋 Hi, <strong>{user.given_name || user.email} &nbsp;</strong></span>
+              <a href="/api/auth/logout" className="btn-logout" onClick={() => trackEvent('logout_click')}>Logout</a>
+            </div>
+          ) : (
+            <a href="/api/auth/login" className="btn-login" onClick={() => trackEvent('login_click')}>Login with MindX ID</a>
+          )}
         </div>
       </header>
 
@@ -140,9 +140,9 @@ function App() {
 
         <section className="api-section">
           <h2>API Security Test</h2>
-          
+
           {loading && <div className="status loading">Loading...</div>}
-          
+
           {error && (
             <div className="status error">
               <p>❌ Error: {error}</p>
@@ -152,14 +152,14 @@ function App() {
               }}>Retry Public API</button>
             </div>
           )}
-          
+
           <div className="status success">
             {apiMessage && (
               <div className="card">
-            <h3>API Check</h3>
-            <p className="api-message">{apiMessage}</p>
-            <button onClick={fetchApiHello} className="secondary-button">Refresh API</button>
-          </div>
+                <h3>API Check</h3>
+                <p className="api-message">{apiMessage}</p>
+                <button onClick={fetchApiHello} className="secondary-button">Refresh API</button>
+              </div>
             )}
 
             {user && (
@@ -182,42 +182,44 @@ function App() {
                 <p>🔒 Login to access the <strong>Secure API endpoint</strong>.</p>
               </div>
             )}
-            <div className="test-endpoints-container">
-              <div className="test-endpoints-list">
-                <span className="test-endpoints-label">Test Endpoints:</span>
-                {['/health', '/api/info', '/api/hello', '/auth/me', '/api/secure-data'].map(path => (
-                  <button 
-                    key={path}
-                    onClick={() => fetchTestEndpoint(path)}
-                    className="test-endpoint-btn"
-                    style={{ cursor: 'pointer' }} 
-                  >
-                    {path}
-                  </button>
-                ))}
-              </div>
-              
-              {testEndpointData && (
-                <div className="api-response active" style={{ marginTop: '15px', borderTop: '1px dashed #eee', paddingTop: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-                    <h4>Result for <code>{testEndpointData.path}</code>:</h4>
-                    <button 
-                      onClick={() => setTestEndpointData(null)}
-                      style={{ fontSize: '0.7rem', padding: '2px 6px', marginTop: 0, background: '#eee', color: '#666' }}
+            {user && (
+              <div className="test-endpoints-container">
+                <div className="test-endpoints-list">
+                  <span className="test-endpoints-label">Test Endpoints:</span>
+                  {['/health', '/api/info', '/api/hello', '/api/auth/me', '/api/secure-data'].map(path => (
+                    <button
+                      key={path}
+                      onClick={() => fetchTestEndpoint(path)}
+                      className="test-endpoint-btn"
+                      style={{ cursor: 'pointer' }}
                     >
-                      Clear
+                      {path}
                     </button>
-                  </div>
-                  {testEndpointLoading ? (
-                    <div className="status loading" style={{ padding: '10px', fontSize: '0.9em' }}>Fetching...</div>
-                  ) : (
-                    <pre style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                      {JSON.stringify(testEndpointData.data, null, 2)}
-                    </pre>
-                  )}
+                  ))}
                 </div>
-              )}
-            </div>
+
+                {testEndpointData && (
+                  <div className="api-response active" style={{ marginTop: '15px', borderTop: '1px dashed #eee', paddingTop: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                      <h4>Result for <code>{testEndpointData.path}</code>:</h4>
+                      <button
+                        onClick={() => setTestEndpointData(null)}
+                        style={{ fontSize: '0.7rem', padding: '2px 6px', marginTop: 0, background: '#eee', color: '#666' }}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    {testEndpointLoading ? (
+                      <div className="status loading" style={{ padding: '10px', fontSize: '0.9em' }}>Fetching...</div>
+                    ) : (
+                      <pre style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {JSON.stringify(testEndpointData.data, null, 2)}
+                      </pre>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
         </section>

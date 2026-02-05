@@ -1,40 +1,12 @@
-import { webcrypto } from 'node:crypto';
-// Polyfill global crypto for Application Insights SDK in Node 18
-if (!globalThis.crypto) {
-  Object.defineProperty(globalThis, 'crypto', {
-    value: webcrypto,
-    writable: false,
-    configurable: false
-  });
-}
+// IMPORTANT: Instrumentation must be imported before any other modules
+import './instrumentation.js';
 
-import * as appInsights from 'applicationinsights';
-import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { authRouter, isAuthenticated } from './auth.js';
 
 const app = express();
-
-// Initialize Application Insights as early as possible
-const connectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING;
-if (connectionString) {
-  appInsights.setup(connectionString)
-    .setAutoDependencyCorrelation(true)
-    .setAutoCollectRequests(true)
-    .setAutoCollectPerformance(true, true)
-    .setAutoCollectExceptions(true)
-    .setAutoCollectDependencies(true)
-    .setAutoCollectConsole(true, true)
-    .setUseDiskRetryCaching(true)
-    .setSendLiveMetrics(true)
-    .setDistributedTracingMode(appInsights.DistributedTracingModes.AI_AND_W3C)
-    .start();
-  console.log('Application Insights initialized');
-} else {
-  console.log('Application Insights connection string not found');
-}
 
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -50,7 +22,7 @@ app.use(session({
   cookie: {
     secure: NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -66,11 +38,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Authentication Routes
-// Support both paths for backward compatibility in dev and Ingress routing in prod
 app.use(['/auth', '/api/auth'], authRouter);
 
-// Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'ok',
@@ -80,7 +49,6 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-// Hello endpoint
 app.get('/api/hello', (req: Request, res: Response) => {
   res.json({
     message: 'Hello from API',
@@ -89,17 +57,15 @@ app.get('/api/hello', (req: Request, res: Response) => {
   });
 });
 
-// API info endpoint
 app.get('/api/info', (req: Request, res: Response) => {
   res.json({
     name: 'MindX Engineer Week 1 API',
     version: '1.0.0',
-    endpoints: ['/health', '/api/hello', '/api/info', '/auth/login', '/auth/me', '/api/secure-data'],
+    endpoints: ['/health', '/api/hello', '/api/info', '/api/auth/login', '/api/auth/me', '/api/secure-data'],
     documentation: 'See README.md for details',
   });
 });
 
-// Protected API endpoint
 app.get('/api/secure-data', isAuthenticated, (req: Request, res: Response) => {
   res.json({
     message: 'This is sensitive data only for logged-in users!',
@@ -108,6 +74,37 @@ app.get('/api/secure-data', isAuthenticated, (req: Request, res: Response) => {
       email: req.session.user.email,
     } : null,
     timestamp: new Date().toISOString()
+  });
+});
+
+// alert test api
+app.get('/api/test-alerts', (req: Request, res: Response) => {
+  const type = req.query.type as string;
+  const duration = parseInt(req.query.duration as string) || 3000;
+
+  if (type === 'error') {
+    console.error(`[${new Date().toISOString()}] Triggering test error for Alert testing`);
+    throw new Error('Test Alert: Manual Trigger for High Error Rate');
+  }
+
+  if (type === 'latency') {
+    console.log(`[${new Date().toISOString()}] Simulating latency: ${duration}ms`);
+    setTimeout(() => {
+      res.json({
+        message: 'Latency test complete',
+        duration,
+        timestamp: new Date().toISOString()
+      });
+    }, duration);
+    return;
+  }
+
+  res.json({
+    message: 'Alert test endpoint ready',
+    usage: {
+      error: '/api/test-alerts?type=error',
+      latency: '/api/test-alerts?type=latency&duration=3000'
+    }
   });
 });
 
