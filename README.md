@@ -97,6 +97,42 @@ To ensure proper Request telemetry capture, Application Insights initialization 
 
 ---
 
+## 📋 Week 3: Ticket Handling & Professional Communication
+
+Practice-based training for support ticket workflow using MindX's 7-step process and Class of Service framework.
+
+### 1. MindX 7-Step Process
+1. **Reception** - Log ticket (<15 min)
+2. **Initial Response** - Acknowledge (<30 min for Standard, <15 min for Priority, <5 min for Expedite)
+3. **Diagnosis** - Investigate systematically
+4. **Resolution** - Fix or escalate
+5. **Communication** - Update regularly
+6. **Follow-up** - Confirm resolution
+7. **Documentation** - Record for trend analysis
+
+### 2. Class of Service Framework
+- **Standard** (<5 users) - Normal priority
+- **Priority** (5-25 users) - Expedited handling
+- **Expedite** (>25 users) - Emergency response
+- **Fixed Deadline** (time-driven) - Deadline-based
+
+### 3. Practice Scenarios Completed
+- **Scenario 1:** Login Issue (Standard) - Basic workflow
+- **Scenario 2:** Performance Problem (Priority) - Investigation & escalation
+- **Scenario 3:** Critical Bug (Expedite) - Emergency coordination
+- **Scenario 4:** Feature Request (Standard) - Expectation management
+- **Scenario 5:** Multi-User Issue (Priority) - Coordinated communication
+- **Scenario 6:** Deadline Request (Fixed Deadline) - Timeline negotiation
+
+### 4. Skills Developed
+- Professional email communication
+- Ticket classification and prioritization
+- Escalation decision-making
+- Stakeholder management
+- Documentation practices
+
+---
+
 ## 🚀 Deployment (Production)
 
 ### CI/CD Workflow
