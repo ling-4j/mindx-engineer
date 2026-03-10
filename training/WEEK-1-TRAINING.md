@@ -1,121 +1,108 @@
-# Week 1 Training Report: AI Workflows & Hexagonal Architecture Research
+# Research: Hexagonal Architecture (Ports & Adapters)
 
-**Trainee:** Linh Huu  
-**Period:** Week 1  
-**Plan Reference:** `docs/plans2/plans2-week-1/overview.md`
+## 1. Core Principles
 
----
+Hexagonal Architecture, also known as **Ports & Adapters**, is an architectural pattern that aims to create loosely coupled application components that can be easily connected to their software environment by means of ports and adapters.
 
-## Objectives Completed
+### Key Components
 
-Master AI collaboration workflows and research Hexagonal Architecture using structured AI-assisted processes.
+- **Domain (Core)**: The innermost part containing business logic and entities. It has no dependencies on external frameworks or tools.
+- **Ports**: Interfaces that the domain defines to communicate with the outside world (e.g., `ITicketRepository`, `IOdooTicketProvider`).
+- **Adapters**: Implementations of ports that bridge the gap between the domain and external systems (e.g., `JsonTicketRepository`, `OdooTicketAdapter`).
+  - **Driven Adapters (Right Side)**: Called by the application (e.g., Database, External APIs).
+  - **Driving Adapters (Left Side)**: Call the application (e.g., CLI, Web UI, REST Controllers).
 
----
+### Dependency Rule
 
-## 1. AI Workflow Mastery
+A key principle of Hexagonal Architecture is **dependency inversion**.
 
-### Workflow 1: Layered Questioning
-**Research → Brief → Example → Validation**
+The domain core must not depend on external infrastructure such as:
 
-Applied to understand the core problem Hexagonal Architecture solves:
+- Databases
+- Frameworks
+- External APIs
+- UI
 
-| Layer | Content |
-|---|---|
-| **Research** | Traditional layered architectures tightly couple business logic with infrastructure (DB, frameworks) |
-| **Brief** | Hexagonal Architecture isolates domain logic using Ports (interfaces) and Adapters (implementations) |
-| **Example** | `OdooTicketProvider implements TicketProvider` — domain never imports Odoo directly |
-| **Validation** | If we replace Odoo with Jira tomorrow, only theadapter file changes — `TicketService` is untouched |
+Instead, the domain defines **ports (interfaces)**, and external systems provide **adapters** that implement those ports.
 
-### Workflow 2: Solution Exploration
-**Explore → Compare → Choose with context**
+**Dependency direction:**
 
-Compared three architecture patterns:
+```
+External Systems
+     ↓
+  Adapters
+     ↓
+   Ports
+     ↓
+Application
+     ↓
+ Domain
+```
 
-| Architecture | Pros | Cons | Decision |
+## 2. Pros & Cons
+
+### Advantages
+
+- **Testability**: The application core can be tested in isolation because dependencies are defined through ports (interfaces). External systems such as databases or APIs can be replaced with mocks or stubs during testing. This design also supports Test-Driven Development (TDD).
+
+- **Maintainability**: Changes in infrastructure (e.g., switching databases or modifying API integrations) can be handled by replacing adapters without modifying the core domain logic.
+
+- **Flexibility**: Multiple adapters can implement the same port. For example, a system may support both a REST API adapter and an Odoo adapter for managing tickets.
+
+- **Independence**: The domain logic remains independent from frameworks, user interfaces, and database technologies.
+
+### Disadvantages
+
+- **Increased Complexity**: The architecture introduces additional abstractions such as ports, adapters, and data mapping layers, which may increase the amount of code.
+
+- **Overhead for Simple Applications**: For small systems or simple CRUD applications, the added architectural structure may be unnecessary.
+
+- **Learning Curve**: Developers familiar with traditional layered architecture may need time to understand concepts such as dependency inversion and port-adapter separation.
+
+## 3. When to Apply
+
+Hexagonal Architecture is most suitable when:
+
+- **Long-lived applications**: Where technology stacks might evolve.
+- **Applications with multiple entry points**: (e.g., CLI and Web).
+- **Systems requiring high test coverage**: Especially for business rules.
+- **Enterprise-level software**: Where domain logic is complex and needs protection.
+
+### Scenario 1: External System Integration
+
+A ticket management system needs to integrate with an external CRM such as Odoo.
+
+Hexagonal Architecture allows the system to define a port for ticket providers and implement an adapter for Odoo without affecting the domain logic.
+
+**Flow:**
+
+```
+External API (Odoo)
+     ↓
+  Odoo Adapter
+     ↓
+Ticket Provider Port
+     ↓
+Application Service
+     ↓
+Domain
+```
+
+### Scenario 2: Multiple Interfaces
+
+A system may expose both:
+
+- Web API
+- CLI interface
+
+Both interfaces can act as **driving adapters** interacting with the same application core.
+
+## 4. Comparison with Alternative Architectures
+
+| Architecture | Characteristics | Advantages | Disadvantages |
 |---|---|---|---|
-| Layered | Simple, fast to build | Tight coupling with infra | ❌ Not chosen |
-| Clean Architecture | Strong separation | High structural complexity | ⚠️ Considered |
-| **Hexagonal (Ports & Adapters)** | Flexible external integration, high testability | Boilerplate overhead | ✅ **Chosen** |
+| **Layered Architecture** | UI → Service → Repository → DB | Simple and easy to implement | Business logic often tightly coupled with infrastructure |
+| **Clean Architecture** | Strict separation of entities, use cases, and interfaces | Highly maintainable | More complex structure |
+| **Onion Architecture** | Dependency inversion with circular layers | Strong domain protection | Less intuitive structure |
+| **Hexagonal Architecture** | Ports & adapters isolate domain from infrastructure | Flexible integration and high testability | Additional abstraction and setup |
 
-**Decision rationale:** The project integrates multiple external systems (Odoo API, JSON file storage, CLI, Web UI) — Hexagonal Architecture handles this naturally.
-
-### Workflow 3: Iterative Refinement
-**Review → Summarize → Refine → Feedback → Validate**
-
-- **Iteration 1:** Understood basic port/adapter concept
-- **Iteration 2:** Refined with dependency direction: dependencies always point *inward* to domain, never outward
-- **Iteration 3:** Validated with real scenario: Odoo API connection flows through `OdooTicketProvider → TicketProvider port → TicketService → Domain`
-
----
-
-## 2. Hexagonal Architecture Research Findings
-
-### Core Principles
-
-```
-    ┌──────────────────────────────────┐
-    │   DRIVING ADAPTERS (Left Side)   │
-    │   CLI (index.ts)                 │
-    │   HTTP API (express routes)      │
-    └────────────┬─────────────────────┘
-                 │
-         [Ports - Interfaces]
-         TicketProvider
-         TicketRepository
-                 │
-    ┌────────────▼─────────────────────┐
-    │         DOMAIN (Core)            │
-    │   Ticket Model                   │
-    │   TicketService                  │
-    └────────────┬─────────────────────┘
-                 │
-         [Ports - Interfaces]
-                 │
-    ┌────────────▼─────────────────────┐
-    │  DRIVEN ADAPTERS (Right Side)    │
-    │  OdooTicketProvider              │
-    │  JsonTicketRepository            │
-    └──────────────────────────────────┘
-```
-
-**Key rule:** The Domain never imports Adapters. Adapters import Ports and implement them.
-
-### Pros & Cons
-
-**Advantages:**
-- Domain logic is testable in isolation — inject a `MockTicketProvider` instead of real Odoo
-- Infrastructure substitution without touching business logic
-- Multiple entry points (CLI + Web) sharing one domain core
-
-**Disadvantages:**
-- Boilerplate: requires interfaces, DTOs, and mapping layers
-- Steeper learning curve vs. simple CRUD
-
-### When to Apply
-
-✅ Multiple external integrations (Odoo, future Jira)  
-✅ Multiple entry points (CLI + REST API + Web Dashboard)  
-✅ Domain logic must stay testable independent of infrastructure  
-✅ Long-lived system where tech stacks evolve  
-
----
-
-## Acceptance Criteria — Status
-
-| Criterion | Status | Evidence |
-|---|---|---|
-| Research content documented: Core principles, Pros/Cons, When to apply, Alternatives | ✅ | `docs/plans2/plans2-week-1/hexagonal-research.md` |
-| Research process with AI tracked: Workflows + iterations | ✅ | `docs/plans2/plans2-week-1/research-workflow.md` |
-| Research findings can be explained clearly | ✅ | This document |
-| Questions about Hexagonal Architecture can be answered | ✅ | See detailed Q&A below |
-
-### Q&A Readiness
-
-**Q: What is Hexagonal Architecture?**  
-A: A structural pattern that separates the application core (domain + business rules) from external systems using abstract interfaces (ports) and concrete implementations (adapters).
-
-**Q: What is the difference between a Port and an Adapter?**  
-A: A Port is an interface defined by the domain (`TicketProvider`). An Adapter is a concrete class that implements the port for a specific technology (`OdooTicketProvider implements TicketProvider`).
-
-**Q: Why does dependency go inward?**  
-A: So the domain never breaks when infrastructure changes. Your `TicketService` doesn't know if it talks to Odoo or a flat file — it only knows the `TicketProvider` interface contract.
