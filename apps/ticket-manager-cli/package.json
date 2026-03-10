@@ -1,0 +1,28 @@
+{
+    "name": "ticket-manager-cli",
+    "version": "1.0.0",
+    "description": "Ticket Manager CLI using Hexagonal Architecture",
+    "type": "module",
+    "main": "dist/index.js",
+    "scripts": {
+        "dev": "tsx src/adapters/cli/index.ts",
+        "build": "tsc",
+        "start": "node dist/adapters/cli/index.js",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "commander": "^12.0.0",
+        "dotenv": "^16.4.5",
+        "fs-extra": "^11.2.0",
+        "axios": "^1.6.7",
+        "xmlrpc": "^1.3.2"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^11.0.4",
+        "@types/node": "^20.11.24",
+        "@types/xmlrpc": "^1.3.10",
+        "tsx": "^4.7.1",
+        "typescript": "^5.3.3",
+        "vitest": "^1.3.1"
+    }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "bpsqjzo",
+    "title": "Fix Login Bug",
+    "description": "User cannot login with Google",
+    "status": "open",
+    "priority": "high",
+    "tags": [
+      "bug security"
+    ],
+    "createdAt": "2026-03-10T03:42:13.191Z",
+    "updatedAt": "2026-03-10T03:42:13.191Z"
+  },
+  {
+    "id": "9023axz",
+    "title": "test",
+    "description": "test",
+    "status": "open",
+    "priority": "low",
+    "tags": [
+      "test"
+    ],
+    "createdAt": "2026-03-10T03:43:11.615Z",
+    "updatedAt": "2026-03-10T03:43:11.615Z"
+  }
+]

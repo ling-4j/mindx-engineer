@@ -5,6 +5,34 @@ import express, { Request, Response, NextFunction } from 'express';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { authRouter, isAuthenticated } from './auth.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { TicketService } from './tickets/domain/services/TicketService.js';
+import { OdooTicketProvider } from './tickets/adapters/providers/OdooTicketProvider.js';
+import { Ticket } from './tickets/domain/models/Ticket.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Initialize Ticket Service
+// Local repo removed as per user request
+const ticketRepo = {
+  save: async () => { },
+  findById: async () => null,
+  findAll: async () => [],
+  update: async () => { }
+} as any;
+let odooProvider: OdooTicketProvider | undefined;
+
+if (process.env.USE_ODOO === 'true') {
+  odooProvider = new OdooTicketProvider({
+    url: process.env.ODOO_URL!,
+    db: process.env.ODOO_DB!,
+    username: process.env.ODOO_USERNAME!,
+    apiKey: process.env.ODOO_API_KEY!
+  });
+}
+
+const ticketService = new TicketService(ticketRepo, odooProvider);
 
 const app = express();
 
@@ -106,6 +134,68 @@ app.get('/api/test-alerts', (req: Request, res: Response) => {
       latency: '/api/test-alerts?type=latency&duration=3000'
     }
   });
+});
+
+// Tickets API
+app.get('/api/tickets', async (req: Request, res: Response) => {
+  try {
+    const filter = req.query.filter as string;
+    let odooTickets: Ticket[] = [];
+
+    if (process.env.USE_ODOO === 'true') {
+      try {
+        if (filter === 'unprocessed') {
+          odooTickets = await ticketService.fetchUnprocessed();
+        } else if (filter === 'new') {
+          odooTickets = await ticketService.fetchExternalTickets();
+        } else {
+          odooTickets = await ticketService.fetchExternalTickets();
+        }
+      } catch (e: any) {
+        console.error('Failed to fetch Odoo tickets:', e.message);
+      }
+    }
+
+    res.json({
+      odoo: odooTickets
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/tickets', async (req: Request, res: Response) => {
+  try {
+    const { title, description, priority, tags, source } = req.body;
+    if (source === 'odoo') {
+      const ticket = await ticketService.createExternalTicket({ title, description, priority, tags });
+      return res.status(201).json(ticket);
+    }
+    const ticket = await ticketService.createTicket({ title, description, priority, tags });
+    res.status(201).json(ticket);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/tickets/:id', async (req: Request, res: Response) => {
+  try {
+    const ticket = await ticketService.getTicketDetails(req.params.id);
+    if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+    res.json(ticket);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.patch('/api/tickets/:id/status', async (req: Request, res: Response) => {
+  try {
+    const { status } = req.body;
+    await ticketService.updateTicketStatus(req.params.id, status);
+    res.json({ message: 'Status updated' });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // 404 handler

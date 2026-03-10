@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { trackEvent, trackException } from './metrics'
+import { TicketDashboard } from './components/TicketDashboard'
 
 interface User {
   sub: string;
@@ -223,6 +224,8 @@ function App() {
           </div>
 
         </section>
+
+        <TicketDashboard />
       </main>
 
       <footer className="footer">

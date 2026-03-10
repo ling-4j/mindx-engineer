@@ -156,12 +156,12 @@ The deployment is automated via `deploy.ps1`. It performs the following:
 ## 📝 Document History
 
 ### Week 1: Deployment & Security
-- [WEEK-1-LOG.md](WEEK-1-LOG.md): Detailed technical implementation.
-- [WEEK-1-SUMMARY.md](WEEK-1-SUMMARY.md): Mentor review summary.
+- [WEEK-1-LOG.md](/week1/WEEK-1-LOG.md): Detailed technical implementation.
+- [WEEK-1-SUMMARY.md](/week1/WEEK-1-SUMMARY.md): Mentor review summary.
 
 ### Week 2: Observability
-- [WEEK-2-LOG.md](WEEK-2-LOG.md): Complete implementation log including instrumentation refactoring
-- [WEEK-2-SUMMARY.md](WEEK-2-SUMMARY.md): Final achievements and technical insights
-- [METRICS-GUIDE.md](METRICS-GUIDE.md): Step-by-step alert testing and troubleshooting guide
+- [WEEK-2-LOG.md](/week2/WEEK-2-LOG.md): Complete implementation log including instrumentation refactoring
+- [WEEK-2-SUMMARY.md](/week2/WEEK-2-SUMMARY.md): Final achievements and technical insights
+- [METRICS-GUIDE.md](/week2/METRICS-GUIDE.md): Step-by-step alert testing and troubleshooting guide
 
 ---
