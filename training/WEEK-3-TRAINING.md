@@ -61,18 +61,18 @@ private async getUid(): Promise<number> {
 
 ## CLI Commands for Odoo — All Working
 
-| Command | Description | Status |
+| Command | Description |
 |---|---|---|
-| `tickets odoo list` | Lists all Odoo tickets with status, priority | ✅ |
-| `tickets odoo new -t "Title" -d "Desc" -p high` | Creates a new Odoo ticket | ✅ Verified: ticket #1714 created |
-| `tickets odoo unprocessed` | Lists tickets in "New" stage (unprocessed) | ✅ |
-| `tickets odoo show <id>` | Shows full details of a specific Odoo ticket | ✅ |
+| `tickets odoo list` | Lists all Odoo tickets with status, priority |
+| `tickets odoo new -t "Title" -d "Desc" -p high` | Creates a new Odoo ticket | 
+| `tickets odoo unprocessed` | Lists tickets in "New" stage (unprocessed) | 
+| `tickets odoo show <id>` | Shows full details of a specific Odoo ticket | 
 
 ---
 
 ## Web Dashboard Integration
 
-The same `TicketService` and `OdooTicketProvider` were integrated into `apps/api` (Express) and consumed by `apps/web` (React):
+The same `TicketService` and `OdooTicketProvider` were integrated into `apps/api` (Express) and consumed by `apps/web`:
 
 ### API Endpoints
 

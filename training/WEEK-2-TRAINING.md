@@ -1,9 +1,5 @@
 # Week 2 Training Report: Ticket Manager CLI with Hexagonal Architecture
 
-**Trainee:** Linh Huu  
-**Period:** Week 2  
-**Plan Reference:** `docs/plans2/plans2-week-2/overview.md`
-
 ---
 
 ## Objectives Completed
@@ -46,8 +42,8 @@ apps/ticket-manager-cli/src/
 ```typescript
 export class TicketService {
   constructor(
-    private ticketRepository: TicketRepository,   // PORT
-    private ticketProvider?: TicketProvider        // PORT
+    private ticketRepository: TicketRepository,   
+    private ticketProvider?: TicketProvider       
   ) {}
 
   async createTicket(dto: CreateTicketDTO): Promise<Ticket> {
@@ -62,7 +58,6 @@ export class TicketService {
 ### Ports (`ports/`)
 
 ```typescript
-// TicketRepository.ts — what storage must support
 export interface TicketRepository {
   save(ticket: Ticket): Promise<void>;
   findById(id: string): Promise<Ticket | null>;
@@ -74,7 +69,6 @@ export interface TicketRepository {
 ### Adapters (`adapters/`)
 
 ```typescript
-// JsonTicketRepository.ts — HOW JSON file fulfills the port
 export class JsonTicketRepository implements TicketRepository {
   async findAll(): Promise<Ticket[]> {
     return JSON.parse(fs.readFileSync(this.filePath, 'utf-8'));
@@ -102,7 +96,7 @@ All four required commands verified:
 **Solution Exploration used to decide storage format:**
 - Option A: SQLite — too heavy for a simple CLI tool
 - Option B: PostgreSQL — requires a running server
-- **Option C: JSON file** — simple, portable, and sufficient → **Chosen**
+- **Option C: JSON file** — simple, portable, and sufficient → **Picked**
 
 This shows the domain (`TicketService`) is completely agnostic. We can switch from JSON to PostgreSQL simply by writing a new `PostgresTicketRepository implements TicketRepository` — no domain changes needed.
 

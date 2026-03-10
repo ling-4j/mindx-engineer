@@ -164,4 +164,16 @@ The deployment is automated via `deploy.ps1`. It performs the following:
 - [WEEK-2-SUMMARY.md](/week2/WEEK-2-SUMMARY.md): Final achievements and technical insights
 - [METRICS-GUIDE.md](/week2/METRICS-GUIDE.md): Step-by-step alert testing and troubleshooting guide
 
+### Week 3: Odoo Integration
+- [WEEK-3-SUMMARY.md](/week3/WEEK-3-SUMMARY.md): Detailed scenario logs and screenshots.
+
+### Week 4: Analysis & Problem Resolution
+- [WEEK-4-SUMMARY.md](/week4/WEEK-4-SUMMARY.md): Comprehensive analysis report.
+
+### AI Training
+- [Hexagonal Architecture](/training/WEEK-1-TRAINING.md): Research on Ports & Adapters pattern, dependency rules, and architectural comparisons.
+- [Ticket Manager CLI](/training/WEEK-2-TRAINING.md): Implementation of domain logic, ports, and local JSON storage for a decoupled CLI tool.
+- [Odoo & Web Integration](/training/WEEK-3-TRAINING.md): Integrating Odoo XML-RPC API and building a React-based Ticket Dashboard.
+
+
 ---
